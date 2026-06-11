@@ -174,17 +174,17 @@ class AcroMacroList(CallbacksExt):
         if structure != None:
             level = self.stored['Data'][row]['level']
             if col == 0:
-                attribs.bgColor = op.MC.pars('Macrolistbg*')
-                attribs.rightBorderOutColor = op.MC.pars(f'Macrolisttextl{max(level-1, 0) % 8}*')
-                attribs.topBorderOutColor = op.MC.pars('Macrolistbg*')
-                attribs.bottomBorderOutColor = op.MC.pars('Macrolistbg*')
+                attribs.bgColor = op.AM.pars('Macrolistbg*')
+                attribs.rightBorderOutColor = op.AM.pars(f'Macrolisttextl{max(level-1, 0) % 8}*')
+                attribs.topBorderOutColor = op.AM.pars('Macrolistbg*')
+                attribs.bottomBorderOutColor = op.AM.pars('Macrolistbg*')
             if col == 1:
                 #text = ''.join(['| ' for i in range(self.stored['Data'][row]['level'])])
                 text = ''
                 level = min(self.stored['Data'][row]['level'], 7)
                 if level > 0:
                     #text += '| '
-                     attribs.rightBorderOutColor = op.MC.pars('Macrolistbg*')
+                     attribs.rightBorderOutColor = op.AM.pars('Macrolistbg*')
                 if self.stored['Data'][row]['hasChildren']:
                     if structure['expanded']:
                         text += 'v'
@@ -195,9 +195,9 @@ class AcroMacroList(CallbacksExt):
                 attribs.text = text
                 attribs.textJustify = JustifyType.CENTERRIGHT
                 attribs.textOffsetX = -4
-                attribs.bgColor = op.MC.pars('Macrolistbg*')
-                attribs.topBorderOutColor = op.MC.pars('Macrolistbg*')
-                attribs.bottomBorderOutColor = op.MC.pars('Macrolistbg*')
+                attribs.bgColor = op.AM.pars('Macrolistbg*')
+                attribs.topBorderOutColor = op.AM.pars('Macrolistbg*')
+                attribs.bottomBorderOutColor = op.AM.pars('Macrolistbg*')
                 #attribs.colWidth = row * 200
             if col == 2:
                 attribs.text = structure['name']
@@ -212,11 +212,11 @@ class AcroMacroList(CallbacksExt):
                 #     bgColor += .1
             if col == 3:
                 attribs.text = 'E'
-                attribs.textColor = op.MC.pars('Macrolisterroroff*')
+                attribs.textColor = op.AM.pars('Macrolisterroroff*')
 
 
                 if structure['error']:
-                    attribs.textColor = op.MC.pars('Macrolisterroron*')
+                    attribs.textColor = op.AM.pars('Macrolisterroron*')
                 # if attribs.rollover:
                 #     bgColor += .1
                 # if structure['selected']:
@@ -233,41 +233,41 @@ class AcroMacroList(CallbacksExt):
 
         # use level-based text colors (clamp to 0-7)
         level = min(self.stored['Data'][row]['level'], 7)
-        attribs.textColor = op.MC.pars(f'Macrolisttextl{level}*')
+        attribs.textColor = op.AM.pars(f'Macrolisttextl{level}*')
 
-        bgColor = op.MC.pars('Macrolistcelloff*')
+        bgColor = op.AM.pars('Macrolistcelloff*')
         structure = self.getStructure(row)
         if structure != None:
             if structure['selected']:
                 if attribs.rollover:
-                    bgColor = op.MC.pars('Macrolistcellonroll*')
+                    bgColor = op.AM.pars('Macrolistcellonroll*')
                 else:
-                    bgColor = op.MC.pars('Macrolistcellon*')
+                    bgColor = op.AM.pars('Macrolistcellon*')
             elif attribs.rollover:
-                bgColor = op.MC.pars('Macrolistcelloffroll*')
+                bgColor = op.AM.pars('Macrolistcelloffroll*')
             attribs.bgColor = bgColor
         return
     
     # called when a list column is being updated
     def onInitCol(self, comp, col, attribs):
-        attribs.bgColor = op.MC.pars('Macrolistrowbg*')
+        attribs.bgColor = op.AM.pars('Macrolistrowbg*')
         if col == 0:
             attribs.colWidth = 0
-            attribs.bgColor = op.MC.pars('Macrolistbg*')
+            attribs.bgColor = op.AM.pars('Macrolistbg*')
         if col == 1:
             attribs.colWidth = 21
-            attribs.rightBorderOutColor = op.MC.pars('Macrolistrowbg*')
+            attribs.rightBorderOutColor = op.AM.pars('Macrolistrowbg*')
             
         if col == 2:
             attribs.colStretch = True
-            attribs.bottomBorderOutColor = op.MC.pars('Macrolistborderdark*')
-            attribs.topBorderOutColor = op.MC.pars('Macrolistborderlight*')
-            attribs.leftBorderOutColor = op.MC.pars('Macrolistborderlight*')
+            attribs.bottomBorderOutColor = op.AM.pars('Macrolistborderdark*')
+            attribs.topBorderOutColor = op.AM.pars('Macrolistborderlight*')
+            attribs.leftBorderOutColor = op.AM.pars('Macrolistborderlight*')
         if col == 3:
             attribs.colWidth = 20
-            attribs.bottomBorderOutColor = op.MC.pars('Macrolistborderdark*')
-            attribs.topBorderOutColor = op.MC.pars('Macrolistborderlight*')
-            attribs.rightBorderOutColor = op.MC.pars('Macrolistborderdark*')
+            attribs.bottomBorderOutColor = op.AM.pars('Macrolistborderdark*')
+            attribs.topBorderOutColor = op.AM.pars('Macrolistborderlight*')
+            attribs.rightBorderOutColor = op.AM.pars('Macrolistborderdark*')
         return
     def onInitTable(self, comp, attribs):
         return
@@ -289,9 +289,9 @@ class AcroMacroList(CallbacksExt):
                 if structure != None:
                     rowAttribs = comp.rowAttribs[row]
                     if structure['selected']:
-                        rowAttribs.bgColor = op.MC.pars('Macrolistcellonroll*')
+                        rowAttribs.bgColor = op.AM.pars('Macrolistcellonroll*')
                     else:
-                        rowAttribs.bgColor = op.MC.pars('Macrolistcelloffroll*')
+                        rowAttribs.bgColor = op.AM.pars('Macrolistcelloffroll*')
 
         # reset previous row
         if prevRow != None and prevRow >= 0:
@@ -300,9 +300,9 @@ class AcroMacroList(CallbacksExt):
                 if structure != None:
                     prevRowAttribs = comp.rowAttribs[prevRow]
                     if structure['selected']:
-                        prevRowAttribs.bgColor = op.MC.pars('Macrolistcellon*')
+                        prevRowAttribs.bgColor = op.AM.pars('Macrolistcellon*')
                     else:
-                        prevRowAttribs.bgColor = op.MC.pars('Macrolistcelloff*')
+                        prevRowAttribs.bgColor = op.AM.pars('Macrolistcelloff*')
 
         return
 
@@ -311,9 +311,9 @@ class AcroMacroList(CallbacksExt):
         #print('select', startRow, startCol, startCoords, endRow, endCol, endCoords, start, end)
         structure = self.getStructure(startRow)
 
-        defaultBGColor = op.MC.pars('Macrolistcelloff*')
-        defaultTopBorderOutColor = op.MC.pars('Macrolistborderlight*')
-        defaultBottomBorderOutColor = op.MC.pars('Macrolistborderdark*')
+        defaultBGColor = op.AM.pars('Macrolistcelloff*')
+        defaultTopBorderOutColor = op.AM.pars('Macrolistborderlight*')
+        defaultBottomBorderOutColor = op.AM.pars('Macrolistborderdark*')
         
         # input_info = {
         #     'startRow': startRow,
@@ -381,11 +381,11 @@ class AcroMacroList(CallbacksExt):
             if self.dragRow:
                 dragRowAttribs = comp.rowAttribs[endRow]
 
-                defaultBGColor = op.MC.pars('Macrolistcelloff*')
-                defaultTopBorderOutColor = op.MC.pars('Macrolistborderlight*')
-                defaultBottomBorderOutColor = op.MC.pars('Macrolistborderdark*')
+                defaultBGColor = op.AM.pars('Macrolistcelloff*')
+                defaultTopBorderOutColor = op.AM.pars('Macrolistborderlight*')
+                defaultBottomBorderOutColor = op.AM.pars('Macrolistborderdark*')
 
-                highlightColor = op.MC.pars('Macrolistdraghighlight*')
+                highlightColor = op.AM.pars('Macrolistdraghighlight*')
                 
                 # drag over top - insert above
                 if endCoords.v > .75:
@@ -421,7 +421,7 @@ class AcroMacroList(CallbacksExt):
 
         # select error button - clear error
         elif startCol == 3 and start:
-            op.MC.ClearMacroErrors(structure['uuid'])
+            op.AM.ClearMacroErrors(structure['uuid'])
 
         return
     
@@ -460,7 +460,7 @@ class AcroMacroList(CallbacksExt):
         structure = self.getStructure(row)
         # get macro uuid
         macro_uuid = structure['uuid']
-        op.MC.RenameMacroUUID(macro_uuid, val)
+        op.AM.RenameMacroUUID(macro_uuid, val)
         return
     
     #return True if interested in this drop event, False otherwise

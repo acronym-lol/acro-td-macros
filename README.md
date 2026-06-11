@@ -15,13 +15,13 @@ A system for controlling TouchDesigner components via Macros.
 
 ```python
 # Get the main extension via the global shortcut
-op.MC.CreateMacro('MyMacro', '/')
+op.AM.CreateMacro('MyMacro', '/')
 
 # Trigger a macro
-op.MC.TriggerMacro('MyMacro', args={'foo': 'bar'})
+op.AM.TriggerMacro('MyMacro', args={'foo': 'bar'})
 
 # Emit a signal to all subscribed macros
-op.MC.Emit('mySignal', args={'value': 42})
+op.AM.Emit('mySignal', args={'value': 42})
 ```
 
 ## Installation
