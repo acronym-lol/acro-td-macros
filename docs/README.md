@@ -4,7 +4,7 @@ Hierarchical macro framework for TouchDesigner — named, addressable units of b
 
 ## What it does
 
-`AcroMacros` (`/components/AcroMacros`, shortcut `op.AM`, extension `ext.AcroMacros`) lets you define small units of behavior — each with an `onInit` and `onTrigger` callback — organized in a folder hierarchy and triggered programmatically or by signal.
+`AcroMacros` (`/AcroMacros`, shortcut `op.AM`, extension `ext.AcroMacros`) lets you define small units of behavior — each with an `onInit` and `onTrigger` callback — organized in a folder hierarchy and triggered programmatically or by signal.
 
 Each macro is a directory containing a `data.json` (metadata, subscriptions, errors, log) and a `callbacks.py` (the actual handler functions). The framework loads them into memory at start-up and surfaces them via the `op.AM.*` API.
 

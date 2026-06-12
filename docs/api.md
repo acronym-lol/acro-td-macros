@@ -4,7 +4,7 @@
 
 Macros is a hierarchical macro management framework. A macro is a small, persistent unit of behavior with two callback functions (`onInit` and `onTrigger`) and an attached metadata bundle. Macros are stored on disk as folders containing a JSON metadata file and a Python callback file, and are loaded into memory at start-up.
 
-The component lives at `/components/AcroMacros` and is exposed as `op.AM`. It inherits from `CallbacksExt` and `AcroVersionExt`, so it carries the standard Component / Version pages and is discoverable via the `tox_managed` and `version_tracking` tags.
+The component lives at `/AcroMacros` and is exposed as `op.AM`. It inherits from `CallbacksExt` and `AcroVersionExt`, so it carries the standard Component / Version pages and is discoverable via the `tox_managed` and `version_tracking` tags.
 
 Use Macros when you want named, addressable behaviors that survive saves, can be triggered programmatically or by signal, and are organized in a hierarchy you can edit at runtime.
 

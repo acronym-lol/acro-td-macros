@@ -57,7 +57,9 @@ class AcroMacroList(CallbacksExt):
        
         data = []
 
-        def buildData(dataStructure, data, level=0, path=[]):
+        def buildData(dataStructure, data, level=0, path=None):
+            if path is None:
+                path = []
             item_number = 0
             for item in dataStructure:
                 data.append(
@@ -183,8 +185,7 @@ class AcroMacroList(CallbacksExt):
                 text = ''
                 level = min(self.stored['Data'][row]['level'], 7)
                 if level > 0:
-                    #text += '| '
-                     attribs.rightBorderOutColor = op.AM.pars('Macrolistbg*')
+                    attribs.rightBorderOutColor = op.AM.pars('Macrolistbg*')
                 if self.stored['Data'][row]['hasChildren']:
                     if structure['expanded']:
                         text += 'v'
