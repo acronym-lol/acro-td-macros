@@ -1,2 +1,3 @@
 - [Home](/)
 - [API Reference](api)
+- [REST API](http-api)

@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [3.0.0] - 2026-07-09
+- Added Macro API Access
+
 ## [2.2.5] - 2026-06-09
 - Updated changelog and version paths
 
