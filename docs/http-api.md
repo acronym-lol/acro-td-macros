@@ -10,10 +10,53 @@ UIs, curl, other languages — anything that can't call `op.AM.*` directly.
 | **Extension** | `MacroApi` webserver callbacks |
 | **Scripts** | `modules/acro-td-macros/scripts/macro_webserver.py` (webserverDAT callbacks), `macro_api_router.py` (route dispatch) |
 | **TD Location** | `/AcroMacros/webserver1` (a `webserverDAT` living inside `/AcroMacros` itself) |
-| **Configuration** | The **`Api`** custom page on `/AcroMacros` — every `webserver1` parameter (port, active, TLS, content-type, etc.) is bound there, so configure the server from the parent component, not the child DAT |
-| **Base URL** | `http://localhost:{port}/api/v1` — port is whatever `Webserverport` is set to on the `Api` page (`9980` by default in this project) |
+| **Configuration** | The **`API`** custom page on `/AcroMacros` — every `webserver1` parameter (port, active, TLS, content-type, etc.) is bound there, so configure the server from the parent component, not the child DAT |
+| **Base URL** | `http://localhost:{port}/api/v1` — port is whatever `Webserverport` is set to on the `API` page (`9980` by default in this project) |
 | **Auth** | None. Local-dev only — do not expose beyond localhost without adding one. |
 | **CORS** | Wide open (`Access-Control-Allow-Origin: *`), so any local page/app can call it cross-origin. |
+
+## Configuring the server — the `API` page
+
+`/AcroMacros` has a custom parameter page named **`API`** with every configurable parameter of the
+`webserver1` DAT. Value-type parameters are live-bound (`bindExpr`) to `webserver1`'s own parameters — set
+them here and the actual server reconfigures immediately, no reinitialization needed. The one exception is
+**Restart**, a momentary action (not a bindable value): it's wired via a `pulse_Webserverrestart()` handler
+in `AcroMacros.py` that calls `webserver1.par.restart.pulse()` directly.
+
+The page mirrors `webserver1`'s own three native parameter groups:
+
+**Web Server**
+
+| Parameter | Label | Type | Notes |
+|---|---|---|---|
+| `Webserveractive` | Active | Toggle | Starts/stops the server. Bound to `webserver1.active`. |
+| `Webserverrestart` | Restart | Pulse | Restarts the server (handler, not a bind — see above). |
+| `Webserverport` | Port | Int | TCP port the API listens on. This is what `{port}` refers to throughout this doc. |
+| `Webservercallbacks` | Callbacks DAT | DAT ref | Which DAT handles the webserver callbacks — normally leave pointed at `webserver1_callbacks`. |
+
+**Secure (TLS)**
+
+| Parameter | Label | Type | Notes |
+|---|---|---|---|
+| `Webserversecure` | Secure (TLS) | Toggle | Enables HTTPS. |
+| `Webserverprivatekey` | Private Key File Path | File | Required if TLS is on. |
+| `Webservercertificate` | Certificate File Path | File | Required if TLS is on. |
+| `Webserverpassword` | Certificate Password | Str | Password for the certificate file, if any. |
+| `Webserververifyclient` | Verify Client | Toggle | Require/validate a client certificate. |
+| `Webserverminprotocol` | Minimum TLS Protocol | Menu | `tls10` \| `tls11` \| `tls12` \| `tls13`. |
+
+**Content**
+
+| Parameter | Label | Type | Notes |
+|---|---|---|---|
+| `Webserverlanguage` | Content Language | Menu | Response content-type hint: `input` (from request), `parameter`, `text`, `python`, `glsl`, `json`, `yaml`, `xml`, `tscript`. The router always sets `content-type: application/json` itself on non-OPTIONS responses, so this mostly matters for the raw `/` fallback and error edge cases. |
+| `Webserverextension` | Edit/View Extension | Menu | File extension TD associates with served content when editing/viewing — `csv`/`dat`/`frag`/`glsl`/`html`/`json`/`md`/`py`/`rtf`/`sdp`/`tsv`/`txt`/`vert`/`xml`/`yaml`/`yml`, or derive it from `languageext`/`customext`. |
+| `Webservercustomext` | Custom Extension | Str | Used when `Webserverextension` is set to `customext`. |
+| `Webserverwordwrap` | Word Wrap | Menu | `input` \| `on` \| `off` — TD editor word-wrap behavior for served text content. |
+
+None of the Content-group parameters affect the JSON API responses themselves (the router hardcodes
+`application/json`) — they matter if you're using `webserver1` to also serve non-API content (static files,
+HTML) from the same DAT.
 
 ## Data model
 
