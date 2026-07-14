@@ -2,9 +2,15 @@
 macro_api_router.py
 
 Route dispatch for the Macro_API REST server. Pure functions: given the
-Macrocosm extension instance, HTTP method, URI, query params and parsed JSON
-body, return (statusCode, statusReason, payload_dict_or_None) for
-onHTTPRequestWebServer to write into the response.
+AcroMacros component (the caller's ownerComp - see AcroRestAPI.py), HTTP
+method, URI, query params and parsed JSON body, return (statusCode,
+statusReason, payload_dict_or_None) for AcroRestAPI.OnHTTPRequest to write
+into the response.
+
+This module never hardcodes where AcroMacros lives (no op('/AcroMacros')) -
+the caller (AcroRestAPI, an extension living on that same component) always
+passes its own ownerComp in, so routing works regardless of the component's
+actual path or name.
 
 Route table (base: /api/v1):
     GET    /health
@@ -67,11 +73,15 @@ def _no_safety_prompt(mc):
         mc.stored['Safety'] = prev
 
 
-def _get_macrocosm():
-    mc_comp = op('/AcroMacros')
-    if not mc_comp:
-        raise ApiError(503, 'macrocosm_unavailable', 'AcroMacros component not found at /AcroMacros')
-    return mc_comp.extensions[0]
+def _get_macrocosm(owner_comp):
+    """Resolve the AcroMacros extension (slot 0) on owner_comp.
+
+    owner_comp is the component AcroRestAPI is attached to - the same one
+    AcroMacros itself is attached to - so this never needs to guess a path.
+    """
+    if not owner_comp.extensions:
+        raise ApiError(503, 'macrocosm_unavailable', 'No AcroMacros extension found on the owning component')
+    return owner_comp.extensions[0]
 
 
 def _require_macro(mc, path):
@@ -105,7 +115,7 @@ def _child_path(parent_path, child):
 # Entry point
 # -----------------------------------------------------------------------------
 
-def route_request(method, uri, pars, body):
+def route_request(owner_comp, method, uri, pars, body):
     try:
         segments = _parse_segments(uri)
 
@@ -115,9 +125,9 @@ def route_request(method, uri, pars, body):
         # if this route doesn't itself require AcroMacros to resolve. So
         # handle it before calling _get_macrocosm(), not after.
         if segments == ['health']:
-            return _handle_health(method)
+            return _handle_health(owner_comp, method)
 
-        mc = _get_macrocosm()
+        mc = _get_macrocosm(owner_comp)
         if segments and segments[0] == 'signals':
             return _handle_signals(mc, method, segments[1:], body)
         if segments and segments[0] == 'macros':
@@ -144,16 +154,18 @@ def _parse_segments(uri):
 # /health
 # -----------------------------------------------------------------------------
 
-def _handle_health(method):
+def _handle_health(owner_comp, method):
     if method != 'GET':
         raise ApiError(405, 'method_not_allowed', f'{method} not allowed on /health')
-    ws = op('/AcroMacros/webserver_api')
-    mc_comp = op('/AcroMacros')
+    # Relative lookup off owner_comp, not an absolute op('/AcroMacros/...')
+    # path - works no matter where this component actually lives.
+    ws = owner_comp.op('webserver_api')
+    macrocosm_available = bool(owner_comp.extensions) and owner_comp.extensions[0] is not None
     return 200, 'OK', {
         'status': 'ok',
         'api_active': bool(ws.par.active.eval()) if ws else False,
         'api_port': ws.par.port.eval() if ws else None,
-        'macrocosm_available': mc_comp is not None,
+        'macrocosm_available': macrocosm_available,
     }
 
 

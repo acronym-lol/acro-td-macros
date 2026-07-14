@@ -1,6 +1,13 @@
 """
 webserverDAT callbacks
 
+Thin shim: every callback here just forwards to the AcroRestAPI extension
+living on the parent component (dat.parent() is /AcroMacros - see its
+Extensions page, slot 1). All the actual HTTP handling (CORS, JSON parsing,
+routing) lives in AcroRestAPI.py, not here - this file exists only because
+TD requires a callback DAT with these exact function names wired to the
+webserverDAT's "Callbacks DAT" parameter.
+
 dat - the connected Web Server DAT
 request - A dictionary of the request fields. The dictionary will always
 	contain the below entries, plus any additional entries dependent on the
@@ -23,20 +30,14 @@ response - A dictionary defining the response, to be filled in during the
 		'data' - The data to send back to the client. If displaying a
 			web-page, any HTML would be put here.
 """
-from json import loads, dumps
 from typing import Dict, Any
-
-from macro_api_router import route_request
 
 # return the response dictionary
 def onHTTPRequest(dat: webserverDAT, request: Dict[str, Any],
 				  response: Dict[str, Any]) -> Dict[str, Any]:
 	"""
-	Called when an HTTP request is received. Parses the request, delegates
-	routing to macro_api_router.route_request(), and writes the result back
-	into the response dict. Also handles CORS headers and OPTIONS preflight,
-	since browser-based clients (e.g. a show-control UI) call this API from a
-	different origin and this API has no auth to gate that with.
+	Called when an HTTP request is received. Forwards straight to
+	AcroRestAPI.OnHTTPRequest() on the parent component.
 
 	Args:
 		dat: The connected Web Server DAT
@@ -46,55 +47,7 @@ def onHTTPRequest(dat: webserverDAT, request: Dict[str, Any],
 	Returns:
 		Dict[str, Any]: The response dictionary
 	"""
-	response['Access-Control-Allow-Origin'] = '*'
-	response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-	response['Access-Control-Allow-Headers'] = 'Content-Type'
-	# Let the browser cache the preflight result for a day, so a chatty
-	# client doesn't re-send an OPTIONS request before every single call.
-	response['Access-Control-Max-Age'] = '86400'
-
-	# Normalize casing defensively - real clients send uppercase per the
-	# HTTP spec, but comparisons below are exact-match ('GET', 'POST', ...).
-	method = (request.get('method') or 'GET').upper()
-	if method == 'OPTIONS':
-		# preflight - no body needed
-		response['statusCode'] = 204
-		response['statusReason'] = 'No Content'
-		response['data'] = ''
-		return response
-
-	uri = request.get('uri', '')
-	pars = request.get('pars') or {}
-	raw_data = request.get('data') or ''
-
-	response['content-type'] = 'application/json'
-
-	body = {}
-	if raw_data:
-		try:
-			body = loads(raw_data)
-		except Exception:
-			response['statusCode'] = 400
-			response['statusReason'] = 'Bad Request'
-			response['data'] = dumps({'error': {'code': 'invalid_json', 'message': 'Request body is not valid JSON'}})
-			return response
-		# Valid JSON doesn't guarantee an object - "42", "null", '"x"' and
-		# "[1,2]" all parse fine but have no .get(), which every route
-		# handler relies on. Without this check that surfaces as an
-		# AttributeError deep in a handler, caught by route_request's
-		# catch-all and reported as a 500 - misleading, since it's actually
-		# the client's fault. Catch it here instead, as a clean 400.
-		if not isinstance(body, dict):
-			response['statusCode'] = 400
-			response['statusReason'] = 'Bad Request'
-			response['data'] = dumps({'error': {'code': 'invalid_body', 'message': 'Request body must be a JSON object'}})
-			return response
-
-	status, reason, payload = route_request(method, uri, pars, body)
-	response['statusCode'] = status
-	response['statusReason'] = reason
-	response['data'] = dumps(payload) if payload is not None else ''
-	return response
+	return dat.parent().ext.AcroRestAPI.OnHTTPRequest(dat, request, response)
 
 # ---------------------------------------------------------------------------
 # WebSocket callbacks - this DAT only serves the REST API above. These are
