@@ -49,8 +49,13 @@ def onHTTPRequest(dat: webserverDAT, request: Dict[str, Any],
 	response['Access-Control-Allow-Origin'] = '*'
 	response['Access-Control-Allow-Methods'] = 'GET, POST, PUT, PATCH, DELETE, OPTIONS'
 	response['Access-Control-Allow-Headers'] = 'Content-Type'
+	# Let the browser cache the preflight result for a day, so a chatty
+	# client doesn't re-send an OPTIONS request before every single call.
+	response['Access-Control-Max-Age'] = '86400'
 
-	method = request.get('method', 'GET')
+	# Normalize casing defensively - real clients send uppercase per the
+	# HTTP spec, but comparisons below are exact-match ('GET', 'POST', ...).
+	method = (request.get('method') or 'GET').upper()
 	if method == 'OPTIONS':
 		# preflight - no body needed
 		response['statusCode'] = 204
@@ -73,12 +78,30 @@ def onHTTPRequest(dat: webserverDAT, request: Dict[str, Any],
 			response['statusReason'] = 'Bad Request'
 			response['data'] = dumps({'error': {'code': 'invalid_json', 'message': 'Request body is not valid JSON'}})
 			return response
+		# Valid JSON doesn't guarantee an object - "42", "null", '"x"' and
+		# "[1,2]" all parse fine but have no .get(), which every route
+		# handler relies on. Without this check that surfaces as an
+		# AttributeError deep in a handler, caught by route_request's
+		# catch-all and reported as a 500 - misleading, since it's actually
+		# the client's fault. Catch it here instead, as a clean 400.
+		if not isinstance(body, dict):
+			response['statusCode'] = 400
+			response['statusReason'] = 'Bad Request'
+			response['data'] = dumps({'error': {'code': 'invalid_body', 'message': 'Request body must be a JSON object'}})
+			return response
 
 	status, reason, payload = route_request(method, uri, pars, body)
 	response['statusCode'] = status
 	response['statusReason'] = reason
 	response['data'] = dumps(payload) if payload is not None else ''
 	return response
+
+# ---------------------------------------------------------------------------
+# WebSocket callbacks - this DAT only serves the REST API above. These are
+# intentionally left as inert stubs (unused today, no WebSocket client ever
+# connects), kept only because they're part of webserverDAT's standard
+# callback surface. If WebSocket support is ever needed, implement here.
+# ---------------------------------------------------------------------------
 
 def onWebSocketOpen(dat: webserverDAT, client: str, uri: str):
 	"""
@@ -134,7 +157,7 @@ def onWebSocketReceivePing(dat: webserverDAT, client: str, data: bytes):
 		client: The client identifier
 		data: The ping data received
 	"""
-	dat.webSocketSendPong(client, data=data);
+	dat.webSocketSendPong(client, data=data)
 	return
 
 def onWebSocketReceivePong(dat: webserverDAT, client: str, data: bytes):

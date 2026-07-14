@@ -53,6 +53,11 @@ def _no_safety_prompt(mc):
 
     DeleteMacro/MoveMacro/copyMacro call ui.messageBox() when Safety is on,
     which blocks waiting for a click - fatal for a headless HTTP request.
+
+    This mutates shared state (mc.stored['Safety']) for the duration of the
+    call, which is only safe because TD's webserverDAT handles one request
+    to completion before the next one starts - there's no real concurrency
+    here. If that ever changes, this would need a real lock instead.
     """
     prev = mc.stored['Safety']
     mc.stored['Safety'] = False
@@ -70,6 +75,7 @@ def _get_macrocosm():
 
 
 def _require_macro(mc, path):
+    """Fetch a macro's info by path, or raise 404 if it doesn't exist."""
     info = mc.GetMacroInfo(path)
     if info is None:
         raise ApiError(404, 'macro_not_found', f'No macro at path: {path}')
@@ -77,10 +83,22 @@ def _require_macro(mc, path):
 
 
 def _require_structure(mc, path):
+    """Fetch a macro's tree-structure node by path, or raise 404 if it doesn't exist."""
     structure = mc.GetStructureByPath(path)
     if structure is None:
         raise ApiError(404, 'macro_not_found', f'No macro at path: {path}')
     return structure
+
+
+def _children_of(mc, parent_path):
+    """Return the live children list for a parent path ('' means root)."""
+    structure = _require_structure(mc, parent_path) if parent_path else {'children': mc.stored['MacroStructure']}
+    return structure.get('children', [])
+
+
+def _child_path(parent_path, child):
+    """Build the full macro path for a child dict living under parent_path."""
+    return (parent_path + '/' + child['name']).strip('/') if parent_path else child['name']
 
 
 # -----------------------------------------------------------------------------
@@ -90,10 +108,16 @@ def _require_structure(mc, path):
 def route_request(method, uri, pars, body):
     try:
         segments = _parse_segments(uri)
-        mc = _get_macrocosm()
 
+        # /health is a liveness probe and must answer even if AcroMacros
+        # itself is unreachable - that's the whole point of a health check,
+        # and its response schema ("macrocosm_available") only makes sense
+        # if this route doesn't itself require AcroMacros to resolve. So
+        # handle it before calling _get_macrocosm(), not after.
         if segments == ['health']:
             return _handle_health(method)
+
+        mc = _get_macrocosm()
         if segments and segments[0] == 'signals':
             return _handle_signals(mc, method, segments[1:], body)
         if segments and segments[0] == 'macros':
@@ -193,6 +217,15 @@ def _handle_macros(mc, method, segments, pars, body):
     if suffix == 'errors':
         return _handle_errors(mc, method, path)
 
+    # Unreachable today - suffix is always a member of KNOWN_SUFFIXES, and
+    # every member has a branch above. This is a guardrail against future
+    # drift: add a new suffix to KNOWN_SUFFIXES without adding its branch
+    # here, and without this, the function would fall off the end and
+    # return None - which macro_webserver.py's `status, reason, payload =
+    # route_request(...)` would fail to unpack, raising an uncaught
+    # TypeError instead of a clean error response.
+    raise ApiError(500, 'internal_error', f'No handler wired up for suffix: {suffix}')
+
 
 def _handle_create(mc, body):
     name = body.get('name')
@@ -200,16 +233,17 @@ def _handle_create(mc, body):
     if not name:
         raise ApiError(400, 'invalid_body', "'name' is required")
     if parent_path and mc.GetStructureByPath(parent_path) is None:
-        raise ApiError(404, 'macro_not_found', f'Parent path not found: {parent_path}')
+        raise ApiError(404, 'parent_not_found', f'Parent path not found: {parent_path}')
 
     mc.CreateMacro(name, parent_path)
 
-    parent_structure = _require_structure(mc, parent_path) if parent_path else {'children': mc.stored['MacroStructure']}
-    children = parent_structure.get('children', [])
+    # CreateMacro doesn't return what it created, and may have auto-renamed
+    # it on a name collision (e.g. "Foo" -> "Foo_1") - but it always appends
+    # to the end of the parent's children, so the last child is ours.
+    children = _children_of(mc, parent_path)
     if not children:
         raise ApiError(500, 'internal_error', 'Macro created but could not be located afterward')
-    created = children[-1]
-    new_path = (parent_path + '/' + created['name']).strip('/') if parent_path else created['name']
+    new_path = _child_path(parent_path, children[-1])
     return 201, 'Created', {'macro': mc.GetMacroInfo(new_path)}
 
 
@@ -222,6 +256,10 @@ def _handle_macro_item(mc, method, path, body):
         if not uuid:
             raise ApiError(404, 'macro_not_found', f'No macro at path: {path}')
 
+        # Rename first, then re-resolve the path, then apply the comment.
+        # Renaming changes the macro's path (it's the last path segment), so
+        # if both `name` and `comment` are sent in the same request, the
+        # comment update must target the *new* path, not the original one.
         new_name = body.get('name')
         if new_name and new_name != mc.GetPathByUUID(uuid).split('/')[-1]:
             mc.RenameMacroUUID(uuid, new_name)
@@ -305,6 +343,15 @@ def _handle_move(mc, method, path, body):
     move_type = body.get('move_type', 'under')
     if move_type not in ('above', 'below', 'under'):
         raise ApiError(400, 'invalid_body', "'move_type' must be 'above', 'below', or 'under'")
+
+    # Reject moving a macro into itself or one of its own descendants.
+    # Neither this router nor MoveMacro itself guards against that, and the
+    # result would be a cyclic tree - every recursive walk in this codebase
+    # (GetPathByUUID, GetStructureByPath, ListMacros, ...) would then loop
+    # forever over that cycle, hanging the whole single-threaded TD process.
+    if to_path == path or to_path.startswith(path + '/'):
+        raise ApiError(400, 'invalid_move', 'Cannot move a macro into itself or one of its own descendants')
+
     if to_path and mc.GetStructureByPath(to_path) is None:
         raise ApiError(404, 'macro_not_found', f'Destination path not found: {to_path}')
 
@@ -324,24 +371,29 @@ def _handle_duplicate(mc, method, path, body):
     _require_macro(mc, path)
 
     dest_path = body.get('dest_path') or ''
-    if dest_path and mc.GetStructureByPath(dest_path) is None:
-        raise ApiError(404, 'macro_not_found', f'Destination path not found: {dest_path}')
 
-    dest_structure = _require_structure(mc, dest_path) if dest_path else {'children': mc.stored['MacroStructure']}
-    before_count = len(dest_structure.get('children', []))
+    # No separate "does dest_path exist" check needed here - _children_of()
+    # below calls _require_structure() internally, which raises 404 for a
+    # missing dest_path anyway. A prior version of this function checked it
+    # twice (once explicitly, once inside _children_of) - redundant, removed.
+    #
+    # PasteMacro silently no-ops (just prints to the textport) instead of
+    # raising when dest_path is inside the source path - so the only way to
+    # detect that failure is to check whether a child actually got added.
+    before_count = len(_children_of(mc, dest_path))
 
     with _no_safety_prompt(mc):
         mc.CopyMacro(path)
         mc.PasteMacro(dest_path)
 
-    dest_structure = _require_structure(mc, dest_path) if dest_path else {'children': mc.stored['MacroStructure']}
-    children = dest_structure.get('children', [])
+    # PasteMacro doesn't return the macro it created, so we confirm success
+    # (and find the new macro) by comparing child counts before and after.
+    children = _children_of(mc, dest_path)
     if len(children) <= before_count:
         raise ApiError(409, 'duplicate_failed',
                         'Could not duplicate macro into the given destination '
                         '(e.g. destination is inside the source path)')
-    created = children[-1]
-    new_path = (dest_path + '/' + created['name']).strip('/') if dest_path else created['name']
+    new_path = _child_path(dest_path, children[-1])
     return 201, 'Created', {'macro': mc.GetMacroInfo(new_path)}
 
 
