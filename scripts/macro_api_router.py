@@ -123,7 +123,7 @@ def _parse_segments(uri):
 def _handle_health(method):
     if method != 'GET':
         raise ApiError(405, 'method_not_allowed', f'{method} not allowed on /health')
-    ws = op('/AcroMacros/webserver1')
+    ws = op('/AcroMacros/webserver_api')
     mc_comp = op('/AcroMacros')
     return 200, 'OK', {
         'status': 'ok',

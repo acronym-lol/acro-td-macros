@@ -9,8 +9,8 @@ UIs, curl, other languages — anything that can't call `op.AM.*` directly.
 |----------|-------|
 | **Extension** | `MacroApi` webserver callbacks |
 | **Scripts** | `modules/acro-td-macros/scripts/macro_webserver.py` (webserverDAT callbacks), `macro_api_router.py` (route dispatch) |
-| **TD Location** | `/AcroMacros/webserver1` (a `webserverDAT` living inside `/AcroMacros` itself) |
-| **Configuration** | The **`API`** custom page on `/AcroMacros` — every `webserver1` parameter (port, active, TLS, content-type, etc.) is bound there, so configure the server from the parent component, not the child DAT |
+| **TD Location** | `/AcroMacros/webserver_api` (a `webserverDAT` living inside `/AcroMacros` itself) |
+| **Configuration** | The **`API`** custom page on `/AcroMacros` — every `webserver_api` parameter (port, active, TLS, content-type, etc.) is bound there, so configure the server from the parent component, not the child DAT |
 | **Base URL** | `http://localhost:{port}/api/v1` — port is whatever `Webserverport` is set to on the `API` page (`9980` by default in this project) |
 | **Auth** | None. Local-dev only — do not expose beyond localhost without adding one. |
 | **CORS** | Wide open (`Access-Control-Allow-Origin: *`), so any local page/app can call it cross-origin. |
@@ -18,21 +18,21 @@ UIs, curl, other languages — anything that can't call `op.AM.*` directly.
 ## Configuring the server — the `API` page
 
 `/AcroMacros` has a custom parameter page named **`API`** with every configurable parameter of the
-`webserver1` DAT. Value-type parameters are live-bound (`bindExpr`) to `webserver1`'s own parameters — set
+`webserver_api` DAT. Value-type parameters are live-bound (`bindExpr`) to `webserver_api`'s own parameters — set
 them here and the actual server reconfigures immediately, no reinitialization needed. The one exception is
 **Restart**, a momentary action (not a bindable value): it's wired via a `pulse_Webserverrestart()` handler
-in `AcroMacros.py` that calls `webserver1.par.restart.pulse()` directly.
+in `AcroMacros.py` that calls `webserver_api.par.restart.pulse()` directly.
 
-The page mirrors `webserver1`'s own three native parameter groups:
+The page mirrors `webserver_api`'s own three native parameter groups:
 
 **Web Server**
 
 | Parameter | Label | Type | Notes |
 |---|---|---|---|
-| `Webserveractive` | Active | Toggle | Starts/stops the server. Bound to `webserver1.active`. |
+| `Webserveractive` | Active | Toggle | Starts/stops the server. Bound to `webserver_api.active`. |
 | `Webserverrestart` | Restart | Pulse | Restarts the server (handler, not a bind — see above). |
 | `Webserverport` | Port | Int | TCP port the API listens on. This is what `{port}` refers to throughout this doc. |
-| `Webservercallbacks` | Callbacks DAT | DAT ref | Which DAT handles the webserver callbacks — normally leave pointed at `webserver1_callbacks`. |
+| `Webservercallbacks` | Callbacks DAT | DAT ref | Which DAT handles the webserver callbacks — normally leave pointed at `webserver_api_callbacks`. |
 
 **Secure (TLS)**
 
@@ -55,7 +55,7 @@ The page mirrors `webserver1`'s own three native parameter groups:
 | `Webserverwordwrap` | Word Wrap | Menu | `input` \| `on` \| `off` — TD editor word-wrap behavior for served text content. |
 
 None of the Content-group parameters affect the JSON API responses themselves (the router hardcodes
-`application/json`) — they matter if you're using `webserver1` to also serve non-API content (static files,
+`application/json`) — they matter if you're using `webserver_api` to also serve non-API content (static files,
 HTML) from the same DAT.
 
 ## Data model

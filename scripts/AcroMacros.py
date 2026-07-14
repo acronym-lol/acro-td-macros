@@ -1214,4 +1214,4 @@ class AcroMacros(CallbacksExt, AcroVersionExt):
         """
         Pulse the parameter to restart the API webserver.
         """
-        self.ownerComp.op('webserver1').par.restart.pulse()
+        self.ownerComp.op('webserver_api').par.restart.pulse()
