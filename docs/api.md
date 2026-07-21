@@ -44,11 +44,11 @@ The `data.json` schema:
 `callbacks.py` is loaded as a module at runtime. It is expected to expose two functions:
 
 ```python
-def onInit(info, mc, macro):
-    # mc.Subscribe(macro, 'signal_name')   # subscribe to signals
+def onInit(info, am, macro):
+    # am.Subscribe(macro, 'signal_name')   # subscribe to signals
     return
 
-def onTrigger(info, mc, macro, comps, args):
+def onTrigger(info, am, macro, comps, args):
     # comps is op.comps (component shortcuts)
     # args is whatever was passed to TriggerMacro / Emit
     return
@@ -149,7 +149,7 @@ Calling `TriggerMacro(path, args)` executes the following sequence:
 1. `_get_caller_info()` walks the stack to record where the trigger came from. This is what makes the `Caller` field in macro logs accurate.
 2. `AddMacroLog` writes a log entry tagged `trigger` (or `emit` if the call came from `Emit`).
 3. The trigger is dispatched via TD's `run()` to honor `delayFrames` / `delayMilliSeconds`.
-4. The callback module's `onTrigger(info, mc, macro, comps, args)` is invoked.
+4. The callback module's `onTrigger(info, am, macro, comps, args)` is invoked.
 5. Errors are caught — the macro is flagged in the structure (`error: True`) and the traceback is appended to the macro's `errors` list.
 6. The Macros-level `onTriggerMacro` callback fires.
 

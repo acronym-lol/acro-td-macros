@@ -917,13 +917,13 @@ class AcroMacros(CallbacksExt, AcroVersionExt):
             delayMilliSeconds=delayMilliSeconds
         )
 
-    def triggerMacro(self, macro_uuid: str, info: Dict, mc: Any, macro: Dict,
+    def triggerMacro(self, macro_uuid: str, info: Dict, am: Any, macro: Dict,
                      comps: Any, args: Any) -> None:
         """
         Handler for executing a macro's trigger function.
         """
         try:
-            self.macroCallbacksComp.op(macro_uuid).module.onTrigger(info, mc, macro, comps, args)
+            self.macroCallbacksComp.op(macro_uuid).module.onTrigger(info, am, macro, comps, args)
         except Exception:
             error_msg = traceback.format_exc()
             self.ownerComp.addScriptError("Error in Callback DAT. See textport for details.")

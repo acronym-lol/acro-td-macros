@@ -32,14 +32,14 @@ op.AM.SetCallbackCode('FadeIn', code + '\n# edited')
 ## Macro callback template
 
 ```python
-def onInit(info, mc, macro):
+def onInit(info, am, macro):
     # subscribe to signals here so they're wired the moment the macro loads
-    # mc.Subscribe(macro, 'on_show')
+    # am.Subscribe(macro, 'on_show')
     return
 
-def onTrigger(info, mc, macro, comps, args):
+def onTrigger(info, am, macro, comps, args):
     # info  — caller metadata (path, type, delay)
-    # mc    — op.AM (the AcroMacros instance)
+    # am    — op.AM (the AcroMacros instance)
     # macro — this macro's data dict (uuid, name, parameters, subscriptions, ...)
     # comps — op.comps shortcut (your project's components)
     # args  — whatever was passed to TriggerMacro or Emit
