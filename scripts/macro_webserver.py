@@ -1,10 +1,10 @@
 """
 webserverDAT callbacks
 
-Thin shim: every callback here just forwards to the AcroRestAPI extension
-living on the parent component (dat.parent() is /AcroMacros - see its
+Thin shim: every callback here just forwards to the AcroMacrosRestAPI
+extension living on this same component (/AcroMacros - see its
 Extensions page, slot 1). All the actual HTTP handling (CORS, JSON parsing,
-routing) lives in AcroRestAPI.py, not here - this file exists only because
+routing) lives in AcroMacrosRestAPI.py, not here - this file exists only because
 TD requires a callback DAT with these exact function names wired to the
 webserverDAT's "Callbacks DAT" parameter.
 
@@ -37,7 +37,7 @@ def onHTTPRequest(dat: webserverDAT, request: Dict[str, Any],
 				  response: Dict[str, Any]) -> Dict[str, Any]:
 	"""
 	Called when an HTTP request is received. Forwards straight to
-	AcroRestAPI.OnHTTPRequest() on the parent component.
+	AcroMacrosRestAPI.OnHTTPRequest() on this component.
 
 	Args:
 		dat: The connected Web Server DAT
@@ -47,7 +47,7 @@ def onHTTPRequest(dat: webserverDAT, request: Dict[str, Any],
 	Returns:
 		Dict[str, Any]: The response dictionary
 	"""
-	return ext.AcroRestAPI.OnHTTPRequest(dat, request, response)
+	return ext.AcroMacrosRestAPI.OnHTTPRequest(dat, request, response)
 
 # ---------------------------------------------------------------------------
 # WebSocket callbacks - this DAT only serves the REST API above. These are

@@ -2,13 +2,13 @@
 macro_api_router.py
 
 Route dispatch for the Macro_API REST server. Pure functions: given the
-AcroMacros component (the caller's ownerComp - see AcroRestAPI.py), HTTP
+AcroMacros component (the caller's ownerComp - see AcroMacrosRestAPI.py), HTTP
 method, URI, query params and parsed JSON body, return (statusCode,
-statusReason, payload_dict_or_None) for AcroRestAPI.OnHTTPRequest to write
+statusReason, payload_dict_or_None) for AcroMacrosRestAPI.OnHTTPRequest to write
 into the response.
 
 This module never hardcodes where AcroMacros lives (no op('/AcroMacros')) -
-the caller (AcroRestAPI, an extension living on that same component) always
+the caller (AcroMacrosRestAPI, an extension living on that same component) always
 passes its own ownerComp in, so routing works regardless of the component's
 actual path or name.
 
@@ -76,7 +76,7 @@ def _no_safety_prompt(mc):
 def _get_acro_macros(owner_comp):
     """Resolve the AcroMacros extension (slot 0) on owner_comp.
 
-    owner_comp is the component AcroRestAPI is attached to - the same one
+    owner_comp is the component AcroMacrosRestAPI is attached to - the same one
     AcroMacros itself is attached to - so this never needs to guess a path.
     """
     if not owner_comp.extensions:

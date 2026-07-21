@@ -1,5 +1,5 @@
 """
-AcroRestAPI.py
+AcroMacrosRestAPI.py
 
 REST API bridge for AcroMacros. Handles the webserver_api DAT's HTTP
 callback (CORS, JSON body parsing) and delegates actual routing to
@@ -18,12 +18,12 @@ from typing import Any, Dict
 from macro_api_router import route_request
 
 
-class AcroRestAPI:
+class AcroMacrosRestAPI:
     """ REST API bridge - routes webserver_api's HTTP callback to macro_api_router. """
 
     def __init__(self, ownerComp: Any) -> None:
         """
-        Initialize the AcroRestAPI extension.
+        Initialize the AcroMacrosRestAPI extension.
 
         :param ownerComp: The component this extension is attached to - the
             same component AcroMacros (extension slot 0) lives on.

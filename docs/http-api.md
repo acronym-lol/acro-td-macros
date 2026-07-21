@@ -7,8 +7,8 @@ UIs, curl, other languages — anything that can't call `op.AM.*` directly.
 
 | Property | Value |
 |----------|-------|
-| **Extension** | `AcroRestAPI` — extension slot 1 on `/AcroMacros` (slot 0 is `AcroMacros` itself) |
-| **Scripts** | `AcroRestAPI.py` (CORS, JSON parsing, calls the router), `macro_webserver.py` (webserverDAT callback shim), `macro_api_router.py` (route dispatch) |
+| **Extension** | `AcroMacrosRestAPI` — extension slot 1 on `/AcroMacros` (slot 0 is `AcroMacros` itself) |
+| **Scripts** | `AcroMacrosRestAPI.py` (CORS, JSON parsing, calls the router), `macro_webserver.py` (webserverDAT callback shim), `macro_api_router.py` (route dispatch) |
 | **TD Location** | `/AcroMacros/webserver_api` (a `webserverDAT` living inside `/AcroMacros` itself) |
 | **Configuration** | The **`API`** custom page on `/AcroMacros` — every `webserver_api` parameter (port, active, TLS, content-type, etc.) is bound there, so configure the server from the parent component, not the child DAT |
 | **Base URL** | `http://localhost:{port}/api/v1` — port is whatever `Webserverport` is set to on the `API` page (`9980` by default in this project) |
@@ -25,15 +25,15 @@ UIs, curl, other languages — anything that can't call `op.AM.*` directly.
 ```
 webserver_api (webserverDAT)
   -> webserver_api_callbacks / macro_webserver.py: onHTTPRequest(dat, request, response)
-     -> dat.parent().ext.AcroRestAPI.OnHTTPRequest(...)   [AcroRestAPI.py]
+     -> ext.AcroMacrosRestAPI.OnHTTPRequest(...)   [AcroMacrosRestAPI.py]
         -> macro_api_router.route_request(ownerComp, method, uri, pars, body)
            -> a _handle_* function, calling into the AcroMacros extension (slot 0)
 ```
 
-`AcroRestAPI` is a second extension on the same component `AcroMacros` itself lives on (see
+`AcroMacrosRestAPI` is a second extension on the same component `AcroMacros` itself lives on (see
 `/AcroMacros`'s Extensions page). Because of that, it reaches the macro engine via
 `self.ownerComp.extensions[0]` rather than a hardcoded path — `macro_api_router.py` never assumes
-`AcroMacros` lives at `/AcroMacros`; it just uses whatever `ownerComp` `AcroRestAPI` hands it.
+`AcroMacros` lives at `/AcroMacros`; it just uses whatever `ownerComp` `AcroMacrosRestAPI` hands it.
 `macro_webserver.py` itself has no real logic anymore — it exists only because TD requires a
 callback DAT with these exact function names.
 
