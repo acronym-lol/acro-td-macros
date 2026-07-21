@@ -15,6 +15,11 @@ UIs, curl, other languages — anything that can't call `op.AM.*` directly.
 | **Auth** | None. Local-dev only — do not expose beyond localhost without adding one. |
 | **CORS** | Wide open (`Access-Control-Allow-Origin: *`), so any local page/app can call it cross-origin. |
 
+> **Multiple projects open at once:** the default port (`9980`) is the same across every Acro Core project.
+> If you have more than one Acro Core-based `.toe` open at the same time, only the first one binds the port —
+> the others will fail to start their server. Change `Webserverport` on the `API` page of `/AcroMacros` to a
+> unique value per project so they can run simultaneously.
+
 ### Request flow
 
 ```

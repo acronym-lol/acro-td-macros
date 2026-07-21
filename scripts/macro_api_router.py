@@ -55,7 +55,7 @@ class ApiError(Exception):
 
 @contextmanager
 def _no_safety_prompt(mc):
-    """Suspend Macrocosm's Safety confirmation dialogs for one call.
+    """Suspend AcroMacros's Safety confirmation dialogs for one call.
 
     DeleteMacro/MoveMacro/copyMacro call ui.messageBox() when Safety is on,
     which blocks waiting for a click - fatal for a headless HTTP request.
@@ -73,14 +73,14 @@ def _no_safety_prompt(mc):
         mc.stored['Safety'] = prev
 
 
-def _get_macrocosm(owner_comp):
+def _get_acro_macros(owner_comp):
     """Resolve the AcroMacros extension (slot 0) on owner_comp.
 
     owner_comp is the component AcroRestAPI is attached to - the same one
     AcroMacros itself is attached to - so this never needs to guess a path.
     """
     if not owner_comp.extensions:
-        raise ApiError(503, 'macrocosm_unavailable', 'No AcroMacros extension found on the owning component')
+        raise ApiError(503, 'acro_macros_unavailable', 'No AcroMacros extension found on the owning component')
     return owner_comp.extensions[0]
 
 
@@ -121,13 +121,13 @@ def route_request(owner_comp, method, uri, pars, body):
 
         # /health is a liveness probe and must answer even if AcroMacros
         # itself is unreachable - that's the whole point of a health check,
-        # and its response schema ("macrocosm_available") only makes sense
+        # and its response schema ("acro_macros_available") only makes sense
         # if this route doesn't itself require AcroMacros to resolve. So
-        # handle it before calling _get_macrocosm(), not after.
+        # handle it before calling _get_acro_macros(), not after.
         if segments == ['health']:
             return _handle_health(owner_comp, method)
 
-        mc = _get_macrocosm(owner_comp)
+        mc = _get_acro_macros(owner_comp)
         if segments and segments[0] == 'signals':
             return _handle_signals(mc, method, segments[1:], body)
         if segments and segments[0] == 'macros':
@@ -160,12 +160,12 @@ def _handle_health(owner_comp, method):
     # Relative lookup off owner_comp, not an absolute op('/AcroMacros/...')
     # path - works no matter where this component actually lives.
     ws = owner_comp.op('webserver_api')
-    macrocosm_available = bool(owner_comp.extensions) and owner_comp.extensions[0] is not None
+    acro_macros_available = bool(owner_comp.extensions) and owner_comp.extensions[0] is not None
     return 200, 'OK', {
         'status': 'ok',
         'api_active': bool(ws.par.active.eval()) if ws else False,
         'api_port': ws.par.port.eval() if ws else None,
-        'macrocosm_available': macrocosm_available,
+        'acro_macros_available': acro_macros_available,
     }
 
 

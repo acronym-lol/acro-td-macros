@@ -47,7 +47,7 @@ def onHTTPRequest(dat: webserverDAT, request: Dict[str, Any],
 	Returns:
 		Dict[str, Any]: The response dictionary
 	"""
-	return dat.parent().ext.AcroRestAPI.OnHTTPRequest(dat, request, response)
+	return ext.AcroRestAPI.OnHTTPRequest(dat, request, response)
 
 # ---------------------------------------------------------------------------
 # WebSocket callbacks - this DAT only serves the REST API above. These are
