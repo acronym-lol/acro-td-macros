@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://docs.acronym.lol/schemas/meta.schema.json
+#
+# Repo metadata for acro-docs, which aggregates this docs/ folder into the internal
+# documentation site and publishes a catalog.json from these fields.
+#
+# Plain YAML with no dependency on any generator. The comment above gives editors live
+# schema validation and is inert in every tool that does not understand it.
+
+schema_version: 1
+repo: acronym-lol/acro-td-macros
+
+name: Acro TD Macros
+summary: 'Hierarchical macro framework for TouchDesigner: named units of behaviour with on-disk persistence, callbacks, and signal routing.'
+
+owner: '@matthewwachter'
+maintainers: []
+
+tier: 2
+status: active
+
+# `internal` = visible only inside acro-docs. Nothing reaches the public acronym.lol
+# tools page until this is flipped to `public`. Note this is UNRELATED to the repo being
+# private on GitHub.
+visibility: internal
+
+category: touchdesigner
+
+requires:
+  - TouchDesigner
