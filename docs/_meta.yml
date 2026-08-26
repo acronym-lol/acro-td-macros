@@ -25,5 +25,9 @@ visibility: internal
 
 category: touchdesigner
 
+# Second level of the acro-docs sidebar, within `category`. One of the seven modules
+# bundled into acro-td-core as a git subtree.
+group: modules
+
 requires:
   - TouchDesigner
