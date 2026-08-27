@@ -1,3 +1,7 @@
+---
+last_reviewed: 2026-08-27
+---
+
 # Acro TD Macros
 
 Hierarchical macro framework for TouchDesigner — named, addressable units of behavior with on-disk persistence and signal routing.
