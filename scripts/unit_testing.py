@@ -135,47 +135,47 @@ ext.AcroMacros.InitData()
 class TestMacrosBasicFunctionality(unittest.TestCase):
     def setUp(self):
         # Get the AcroMacros instance from the TD environment.
-        self.mc = ext.AcroMacros
+        self.am = ext.AcroMacros
         # Initialize data (clearing out any previous macros)
-        self.mc.InitData(deleteFolders=True)
+        self.am.InitData(deleteFolders=True)
 
     def test_add_macro(self):
         """Test that adding a macro increases the MacroStructure count."""
-        initial_count = len(self.mc.stored['MacroStructure'])
+        initial_count = len(self.am.stored['MacroStructure'])
         # Create a new macro at the root ("/")
-        self.mc.CreateMacro("TestMacro", "/")
+        self.am.CreateMacro("TestMacro", "/")
         # Since macros are stored as a list in MacroStructure, get the new count.
-        new_count = len(self.mc.stored['MacroStructure'])
+        new_count = len(self.am.stored['MacroStructure'])
         self.assertEqual(new_count, initial_count + 1,
                          "MacroStructure should contain one more macro after adding one.")
 
     def test_delete_macro(self):
         """Test that deleting a macro removes it from the MacroStructure."""
         # Create a macro to delete.
-        self.mc.CreateMacro("TestMacroDelete", "/")
+        self.am.CreateMacro("TestMacroDelete", "/")
         # Assume the macro is at the root; its name should be "TestMacroDelete" or a modified version.
-        names = [m['name'] for m in self.mc.stored['MacroStructure']]
+        names = [m['name'] for m in self.am.stored['MacroStructure']]
         # We expect at least one macro whose name starts with "TestMacroDelete"
         self.assertTrue(any(name.startswith("TestMacroDelete") for name in names),
                         "A macro starting with 'TestMacroDelete' should exist after creation.")
         # Now, delete the macro. For testing, we call DeleteMacro with the macro's path.
         # Assuming the macro is at the root, its path is simply its name.
         macro_path = [name for name in names if name.startswith("TestMacroDelete")][0]
-        self.mc.DeleteMacro(macro_path)
-        names_after = [m['name'] for m in self.mc.stored['MacroStructure']]
+        self.am.DeleteMacro(macro_path)
+        names_after = [m['name'] for m in self.am.stored['MacroStructure']]
         self.assertFalse(any(name.startswith("TestMacroDelete") for name in names_after),
                          "No macro starting with 'TestMacroDelete' should exist after deletion.")
 
     def test_move_macro(self):
         """Test moving a macro from one parent to another updates the MacroStructure correctly."""
         # Create two macros at the root.
-        self.mc.CreateMacro("Parent1", "/")
-        self.mc.CreateMacro("Parent2", "/")
+        self.am.CreateMacro("Parent1", "/")
+        self.am.CreateMacro("Parent2", "/")
         # Create a child macro under Parent1.
-        self.mc.CreateMacro("Child", "/Parent1")
+        self.am.CreateMacro("Child", "/Parent1")
         # Get the current macro structure.
-        parent1 = next((m for m in self.mc.stored['MacroStructure'] if m['name'] == "Parent1"), None)
-        parent2 = next((m for m in self.mc.stored['MacroStructure'] if m['name'] == "Parent2"), None)
+        parent1 = next((m for m in self.am.stored['MacroStructure'] if m['name'] == "Parent1"), None)
+        parent2 = next((m for m in self.am.stored['MacroStructure'] if m['name'] == "Parent2"), None)
         self.assertIsNotNone(parent1, "Parent1 should exist.")
         self.assertIsNotNone(parent2, "Parent2 should exist.")
         # Confirm Parent1 has one child.
@@ -184,10 +184,10 @@ class TestMacrosBasicFunctionality(unittest.TestCase):
         # To move, we specify the path indices. For example, assume:
         # Parent1 is at index 0 in MacroStructure, its child is at index 0.
         # Parent2 is at index 1.
-        self.mc.MoveMacro([0, 0], [1], "under")
+        self.am.MoveMacro([0, 0], [1], "under")
         # Verify that Parent1 now has zero children and Parent2 has one child.
-        parent1 = next((m for m in self.mc.stored['MacroStructure'] if m['name'] == "Parent1"), None)
-        parent2 = next((m for m in self.mc.stored['MacroStructure'] if m['name'] == "Parent2"), None)
+        parent1 = next((m for m in self.am.stored['MacroStructure'] if m['name'] == "Parent1"), None)
+        parent2 = next((m for m in self.am.stored['MacroStructure'] if m['name'] == "Parent2"), None)
         self.assertEqual(len(parent1.get('children', [])), 0, "Parent1 should have no children after moving.")
         self.assertEqual(len(parent2.get('children', [])), 1, "Parent2 should have one child after moving.")
 
