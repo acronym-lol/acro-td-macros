@@ -31,7 +31,7 @@ class DummyOp:
     def addScriptError(self, err):
         print("DummyOp.addScriptError:", err)
 
-# Dummy StorageManager – we'll override it in tests.
+# Dummy StorageManager - we'll override it in tests.
 class DummyStorage(dict):
     pass
 
