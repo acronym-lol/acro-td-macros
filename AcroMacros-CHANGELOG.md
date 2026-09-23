@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.3.1] - 2026-09-23
+- Removed logging of errors and general log from macro data stored on disk.
+
+## [2.3.0] - 2026-08-28
+- Renamed widget folder `mc` to `am` and widget `MCLog` to `AMLog`
+- Removed debug prints from MacroList `list1_callbacks`
+- MacroList `onHover`/`onDrop` now return the extension's value instead of discarding it and always returning `True`
+
 ## [2.2.5] - 2026-06-09
 - Updated changelog and version paths
 

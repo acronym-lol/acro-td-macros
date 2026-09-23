@@ -235,6 +235,8 @@ class AcroMacros(CallbacksExt, AcroVersionExt):
                 macroData['uuid'] = uid
 
             macroData['path'] = rel_path
+            macroData['log'] = []  # runtime-only; not stored on disk
+            macroData['errors'] = []
             write_macro_data(file_path, macroData)
             self.stored['MacroData'][uid] = macroData
 

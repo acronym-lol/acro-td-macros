@@ -10,6 +10,10 @@ import traceback
 from json import loads, dumps
 from typing import Optional, Dict
 
+# Runtime-only keys: kept in memory for the UI but never written to data.json,
+# so firing a macro doesn't dirty the file in git.
+TRANSIENT_KEYS = ('log', 'errors')
+
 
 def load_macro_data(file_path: str) -> Optional[Dict]:
     """Load and parse macro JSON data from a file."""
@@ -25,6 +29,7 @@ def write_macro_data(file_path: str, data: Dict) -> None:
     """Write macro JSON data to a file, ensuring the directory exists."""
     directory = os.path.dirname(file_path)
     os.makedirs(directory, exist_ok=True)
+    data = {k: v for k, v in data.items() if k not in TRANSIENT_KEYS}
     try:
         with open(file_path, 'w') as f:
             f.write(dumps(data, indent=4))

@@ -21,7 +21,7 @@ Each macro is a directory under the `Macrosfolder` parameter (default `{project.
 ```
 macros/main/
   fade-in/
-    data.json              ← metadata (uuid, name, comment, subscriptions, log, errors, order)
+    data.json              ← metadata (uuid, name, comment, subscriptions, order)
     callbacks.py           ← onInit / onTrigger functions
   group/
     data.json
@@ -42,8 +42,8 @@ The `data.json` schema:
 | `comment` | `string` | Free-form comment. |
 | `parameters` | `dict` | User-defined parameter bag (read in callbacks via `macro['parameters']`). |
 | `subscriptions` | `list[str]` | Signal names this macro listens for. |
-| `errors` | `list[str]` | Recent error log (capped at 100 entries). |
-| `log` | `list[str]` | Recent trigger log (capped at 100 entries). |
+| `errors` | `list[str]` | Recent error log (capped at 100 entries). In memory only — never written to `data.json`. |
+| `log` | `list[str]` | Recent trigger log (capped at 100 entries). In memory only — never written to `data.json`. |
 
 `callbacks.py` is loaded as a module at runtime. It is expected to expose two functions:
 
