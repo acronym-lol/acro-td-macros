@@ -1,6 +1,10 @@
 # Acro TD Macros
 
+[![Docs](https://img.shields.io/badge/docs-GitHub%20Pages-blue)](https://acronym-lol.github.io/acro-td-macros/)
+
 A system for controlling TouchDesigner components via Macros.
+
+**Documentation:** https://acronym-lol.github.io/acro-td-macros/
 
 ## Features
 
