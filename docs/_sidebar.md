@@ -4,6 +4,7 @@
      at the top level are kept as written. -->
 
 - [API Reference](api)
+- [AcroMacros REST API](http-api)
 
 ---
 

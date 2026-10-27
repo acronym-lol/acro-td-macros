@@ -58,10 +58,12 @@ def onTrigger(info, am, macro, comps, args):
 - **Logging + errors** — per-macro log buffer and traceback captures, surfaced in the AcroMacroList widget
 - **MCP-friendly** — every method returns JSON-serializable shapes, so `td_execute` calls can drive macros directly
 - **Widgets** — `AcroMacroList` (tree view + drag/drop/rename), `AcroSignalsList` (signal routing table)
+- **REST API** — an optional HTTP layer (`/AcroMacros/webserver_api`, configured via the `API` custom page) exposes the same operations to non-Python clients (browser UIs, curl, etc.)
 
 ## Where to go next
 
 - **[API Reference](api)** — Full method tables (`ListMacros`, `GetMacroInfo`, `GetCallbackCode`, `SetCallbackCode`, `CreateMacro`, `DeleteMacro`, `TriggerMacro`, `Emit`, `Subscribe`, `MoveMacro`, `RenameMacroUUID`, `CopyMacro`, `CutMacro`, `PasteMacro`), on-disk layout, signal routing internals, widget integration.
+- **[REST API](http-api)** — HTTP endpoint reference for the `webserver_api` bridge, for clients that can't call `op.AM.*` directly.
 
 ## Installation
 

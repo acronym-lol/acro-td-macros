@@ -1211,3 +1211,9 @@ class AcroMacros(CallbacksExt, AcroVersionExt):
         Pulse the parameter to reload data.
         """
         self.ReloadData()
+
+    def pulse_Webserverrestart(self) -> None:
+        """
+        Pulse the parameter to restart the API webserver.
+        """
+        self.ownerComp.op('webserver_api').par.restart.pulse()
