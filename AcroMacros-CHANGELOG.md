@@ -2,6 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.5.0] - 2026-10-29
+- The REST API requires an API key from the variable named in Apikeyenv. Added Allowremote and Alloworigins (CORS is no longer open to every origin). The certificate password comes from the variable named in Webserverpasswordenv. Fixed the extension name so the REST API callbacks resolve.
+
 ## [2.4.0] - 2026-10-27
 - Added Macro REST API
 
