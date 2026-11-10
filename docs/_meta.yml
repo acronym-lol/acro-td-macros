@@ -13,15 +13,15 @@ name: Acro TD Macros
 summary: 'Hierarchical macro framework for TouchDesigner: named units of behaviour with on-disk persistence, callbacks, and signal routing.'
 
 owner: '@matthewwachter'
-maintainers: []
+maintainers: ['@matthewwachter']
 
 tier: 2
 status: active
 
-# `internal` = visible only inside acro-docs. Nothing reaches the public acronym.lol
-# tools page until this is flipped to `public`. Note this is UNRELATED to the repo being
-# private on GitHub.
-visibility: internal
+# `public` = name, summary, category, status and links are published on the public
+# acronym.lol tools page, once acro-docs' public-allowlist.yml also lists this repo.
+# `internal` would keep it inside acro-docs only.
+visibility: public
 
 category: touchdesigner
 
@@ -31,3 +31,7 @@ group: modules
 
 requires:
   - TouchDesigner
+
+links:
+  # The public Docsify site on GitHub Pages.
+  homepage: https://acronym-lol.github.io/acro-td-macros/
