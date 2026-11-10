@@ -1,0 +1,54 @@
+name: Bug report
+description: Something in Macros doesn't work as described.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. Please search the existing issues first. For a security problem, use **Report a security vulnerability** instead of a public issue.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you did, and what went wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. ...
+        2. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+  - type: input
+    id: td-build
+    attributes:
+      label: TouchDesigner build
+      description: Shown in Help > About TouchDesigner.
+      placeholder: "2025.32820"
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: AcroMacros version
+      description: The `version` in `AcroMacros-VERSION.json`.
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - Windows
+        - macOS
+  - type: textarea
+    id: textport
+    attributes:
+      label: Textport output
+      description: Any errors or messages from the textport.
+      render: text

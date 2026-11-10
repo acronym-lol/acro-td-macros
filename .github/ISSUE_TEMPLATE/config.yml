@@ -1,0 +1,11 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/acronym-lol/acro-td-macros/security/advisories/new
+    about: Report it privately instead of opening a public issue.
+  - name: Code changes go to acro-td-core
+    url: https://github.com/acronym-lol/acro-td-core/blob/main/CONTRIBUTING.md
+    about: This repo is published from acro-td-core. Open pull requests there.
+  - name: Documentation
+    url: https://acronym-lol.github.io/acro-td-macros/
+    about: The Macros guide.
